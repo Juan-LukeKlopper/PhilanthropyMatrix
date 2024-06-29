@@ -1,51 +1,38 @@
-# PhilanthropyMatrix - Frontend
+# create-svelte
 
-This repository contains the frontend for the PhilanthropyMatrix project, built using the Svelte framework. The frontend provides a user-friendly interface for interacting with the PhilanthropyMatrix secret contract on the Secret Network.
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
-## Overview
+## Creating a project
 
-The PhilanthropyMatrix frontend allows users to:
+If you're seeing this, you've probably already done this step. Congrats!
 
-1. Browse and view tokenized charity NFTs.
-2. Donate to charitable organizations through the purchase of NFTs.
-3. Track the distribution of funds for each NFT.
+```bash
+# create a new project in the current directory
+npm create svelte@latest
 
-## Installation
-
-1. Clone the PhilanthropyMatrix frontend repository to your local machine:
-
-```sh
-git clone https://github.com/Juan-LukeKlopper/PhilanthropyMatrix.git
+# create a new project in my-app
+npm create svelte@latest my-app
 ```
 
-2. Navigate to the cloned repository:
+## Developing
 
-```sh
-cd PhilanthropyMatrix
-```
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-3. Install the required dependencies:
-
-```sh
-npm install
-```
-
-## Usage
-
-To start the development server:
-
-```sh
+```bash
 npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
 ```
 
-This will launch a local development server at `http://localhost:5000`.
+## Building
 
-## Build
+To create a production version of your app:
 
-To create a production build of the frontend:
-
-```sh
+```bash
 npm run build
 ```
 
-The built files will be located in the `public` folder.
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
