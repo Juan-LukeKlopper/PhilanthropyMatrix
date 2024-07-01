@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { getProfile, linkAccounts, loginWithKeplr } from '$lib/services/api';
+  import { getProfile, changeCredentials, addWallet, loginWithKeplr } from '$lib/services/api';
   import { goto } from '$app/navigation';
   
   let profile = {};
@@ -23,29 +23,28 @@
     }
   });
 
-  async function handleLinkKeplr() {
+  async function handleChangeCredentials() {
     try {
-      const { address } = await loginWithKeplr();
-      await linkAccounts(profile.username, profile.password, address);
+      await changeCredentials(profile.keplr_address, username, password);
       profile = await getProfile(localStorage.getItem('token')); // Reload profile to get updated data
-      success = 'Keplr wallet linked successfully';
+      success = 'Credentials updated successfully';
       error = '';
     } catch (err) {
-      console.error('Error linking Keplr wallet:', err);
-      error = 'Error linking Keplr wallet';
+      console.error('Error changing credentials:', err);
+      error = err.message;
       success = '';
     }
   }
 
-  async function handleSetWeb2Credentials() {
+  async function handleAddWallet() {
     try {
-      await linkAccounts(username, password, profile.keplr_address);
+      await addWallet(); // Ensure password is sent
       profile = await getProfile(localStorage.getItem('token')); // Reload profile to get updated data
-      success = 'Web2 credentials set successfully';
+      success = 'Wallet address added successfully';
       error = '';
     } catch (err) {
-      console.error('Error setting Web2 credentials:', err);
-      error = 'Error setting Web2 credentials';
+      console.error('Error adding wallet address:', err);
+      error = err.message;
       success = '';
     }
   }
@@ -56,8 +55,11 @@
 {:else if profile.username}
   <h1>Welcome, {profile.username}</h1>
   <p>Keplr Address: {profile.keplr_address}</p>
-  {#if profile.username === profile.keplr_address}
-    <!-- Show the form to set Web2 credentials -->
+  {#if !profile.keplr_address}
+    <!-- Show the form to add wallet address -->
+    <button on:click={handleAddWallet}>Link Keplr Wallet</button>
+  {:else if profile.username === profile.keplr_address}
+    <!-- Show the form to change username and password -->
     <div>
       <h2>Set Web2 Credentials</h2>
       <div>
@@ -68,11 +70,8 @@
         <label for="password">Password:</label>
         <input type="password" id="password" bind:value={password} required />
       </div>
-      <button on:click={handleSetWeb2Credentials}>Set Web2 Credentials</button>
+      <button on:click={handleChangeCredentials}>Set Web2 Credentials</button>
     </div>
-  {:else}
-    <!-- Show the form to link Keplr wallet -->
-    <button on:click={handleLinkKeplr}>Link Keplr Wallet</button>
   {/if}
   {#if success}
     <p>{success}</p>

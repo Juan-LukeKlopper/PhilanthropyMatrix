@@ -51,19 +51,55 @@ export async function createSecretNetworkClient() {
   return secretjs;
 }
 
-export async function linkAccounts(username, password, keplrAddress) {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/link-accounts`, {
+export async function changeCredentials(keplr_address, new_username, new_password) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/change-credentials`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ username, password, keplr_address: keplrAddress })
+    body: JSON.stringify({ keplr_address, new_username, new_password })
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Link accounts failed:', errorText);
-    throw new Error('Link accounts failed');
+    console.error('Failed to change credentials:', errorText);
+    throw new Error('Failed to change credentials');
+  }
+
+  return response.json();
+}
+
+export async function addWallet() {
+  if (!window.keplr) {
+    throw new Error("Please install Keplr extension");
+  }
+
+  await window.keplr.enable("pulsar-3");
+  const keplrOfflineSigner = window.getOfflineSigner("pulsar-3");
+  const [{ address }] = await keplrOfflineSigner.getAccounts();
+
+  const signMessage = "Login request to my application";
+  const signed = await window.keplr.signArbitrary(
+    "pulsar-3",
+    address,
+    signMessage
+  );
+
+  const username = "temp"
+  const password = "temp"
+
+  const token = localStorage.getItem("token")
+
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/add-wallet`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ username, password, keplr_address: address, pubkey: signed.pub_key.value, sign_message: signMessage, signature: signed.signature})
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to add wallet address');
   }
 
   return response.json();
