@@ -9,9 +9,9 @@ mod claims;
 mod models;
 mod routes;
 
-use routes::{auth, profile};
+use routes::{auth, profile, groups};
 
-struct MyState {
+pub struct MyState {
     pool: PgPool,
 }
 
@@ -27,12 +27,23 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::
         .to_cors()
         .expect("error creating CORS options");
 
-    let state = MyState { pool };
+    let state = MyState { pool: pool.clone() };
 
     let rocket = rocket::build()
-        .mount("/", routes![auth::login, auth::register, auth::keplr_login, auth::link_accounts, profile::get_profile])
-        .attach(cors)
-        .manage(state);
+        .manage(state)
+        .mount("/", routes![
+            auth::login,
+            auth::register,
+            auth::keplr_login,
+            auth::change_credentials,
+            auth::add_wallet,
+            profile::get_profile,
+            groups::add_group, 
+            groups::show_all_groups, 
+            groups::get_group
+        ])
+        .manage(pool)
+        .attach(cors);
 
     Ok(rocket.into())
 }
