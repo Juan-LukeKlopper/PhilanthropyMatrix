@@ -1,8 +1,8 @@
 use rocket::http::Status;
 use rocket::response::status::Custom;
 use rocket::serde::json::Json;
-use serde::{Deserialize, Serialize};
 use rocket::State;
+use serde::{Deserialize, Serialize};
 use verify_keplr_sign::{verify_arbitrary, Signature, PublicKey};
 use sqlx::PgPool;
 
@@ -30,11 +30,22 @@ pub struct RegisterRequest {
 }
 
 #[derive(Deserialize)]
-pub struct LinkAccountsRequest {
+pub struct ChangeCredentialsRequest {
+    pub keplr_address: String,
+    pub new_username: String,
+    pub new_password: String,
+}
+
+#[derive(Deserialize)]
+pub struct AddWalletRequest {
     pub username: String,
     pub password: String,
     pub keplr_address: String,
+    pub pubkey: String,
+    pub sign_message: String,
+    pub signature: String,
 }
+
 
 #[derive(Serialize)]
 pub struct LoginResponse {
@@ -139,56 +150,95 @@ pub async fn keplr_login(keplr_login: Json<KeplrLoginRequest>, pool: &State<PgPo
     }
 }
 
-#[post("/link-accounts", data = "<link_request>")]
-pub async fn link_accounts(link_request: Json<LinkAccountsRequest>, pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
-    let web2_user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = $1")
-        .bind(&link_request.username)
-        .fetch_one(pool.inner())
-        .await;
-
-    let mut web2_user = match web2_user {
-        Ok(user) => user,
-        Err(_) => return Err(Custom(Status::NotFound, "No account found for this username".to_string())),
-    };
-
-    if web2_user.password.as_ref() != Some(&link_request.password) {
-        return Err(Custom(Status::Unauthorized, "Invalid password".to_string()));
-    }
-
-    let web3_user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE keplr_address = $1")
-        .bind(&link_request.keplr_address)
+#[post("/add-wallet", data = "<request>")]
+pub async fn add_wallet(request: Json<AddWalletRequest>,user: Claims, pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = $1")
+        .bind(&user.name)
         .fetch_optional(pool.inner())
-        .await;
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
-    match web3_user {
-        Ok(Some(web3_user)) => {
-            web2_user.keplr_address = web3_user.keplr_address.clone();
+    match user {
+        Some(mut user) => {
+            let keplr_address_exists = sqlx::query("SELECT 1 FROM users WHERE keplr_address = $1")
+                .bind(&request.keplr_address)
+                .fetch_optional(pool.inner())
+                .await
+                .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?
+                .is_some();
+
+            if keplr_address_exists {
+                return Err(Custom(Status::Conflict, "Keplr address already linked to another account".to_string()));
+            }
+
+            let public_key = PublicKey {
+                sig_type: "tendermint/PubKeySecp256k1".to_string(),
+                sig_value: request.pubkey.clone(),
+            };
+
+            let sig = Signature {
+                pub_key: public_key,
+                signature: request.signature.clone(),
+            };
+
+            if !verify_arbitrary(&request.keplr_address, &request.pubkey, request.sign_message.as_bytes(), &sig) {
+                return Err(Custom(Status::Unauthorized, "Invalid signature".to_string()));
+            }
+
+            user.keplr_address = Some(request.keplr_address.clone());
+
             sqlx::query("UPDATE users SET keplr_address = $1 WHERE username = $2")
-                .bind(&web2_user.keplr_address)
-                .bind(&web2_user.username)
+                .bind(&user.keplr_address)
+                .bind(&user.username)
                 .execute(pool.inner())
                 .await
                 .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
-            sqlx::query("DELETE FROM users WHERE username = $1")
-                .bind(&web3_user.username)
-                .execute(pool.inner())
-                .await
-                .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+            Ok(Json(PublicResponse {
+                message: "Wallet address added successfully".to_string(),
+            }))
         }
-        Ok(None) => {
-            web2_user.keplr_address = Some(link_request.keplr_address.clone());
-            sqlx::query("UPDATE users SET keplr_address = $1 WHERE username = $2")
-                .bind(&web2_user.keplr_address)
-                .bind(&web2_user.username)
-                .execute(pool.inner())
-                .await
-                .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
-        }
-        Err(e) => return Err(Custom(Status::InternalServerError, e.to_string())),
+        None => Err(Custom(Status::NotFound, "User not found".to_string())),
     }
+}
 
-    Ok(Json(PublicResponse {
-        message: "Accounts linked successfully".to_string(),
-    }))
+
+#[post("/change-credentials", data = "<request>")]
+pub async fn change_credentials(request: Json<ChangeCredentialsRequest>, user: Claims,pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE keplr_address = $1")
+        .bind(&request.keplr_address)
+        .fetch_optional(pool.inner())
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+
+    match user {
+        Some(mut user) => {
+            let username_exists = sqlx::query("SELECT 1 FROM users WHERE username = $1")
+                .bind(&request.new_username)
+                .fetch_optional(pool.inner())
+                .await
+                .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?
+                .is_some();
+
+            if username_exists {
+                return Err(Custom(Status::Conflict, "Username already taken".to_string()));
+            }
+
+            user.username = request.new_username.clone();
+            user.password = Some(request.new_password.clone());
+
+            sqlx::query("UPDATE users SET username = $1, password = $2 WHERE keplr_address = $3")
+                .bind(&user.username)
+                .bind(&user.password)
+                .bind(&request.keplr_address)
+                .execute(pool.inner())
+                .await
+                .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+
+            Ok(Json(PublicResponse {
+                message: "Username and password updated successfully".to_string(),
+            }))
+        }
+        None => Err(Custom(Status::NotFound, "User not found".to_string())),
+    }
 }
