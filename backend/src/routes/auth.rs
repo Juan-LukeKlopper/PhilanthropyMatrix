@@ -38,8 +38,6 @@ pub struct ChangeCredentialsRequest {
 
 #[derive(Deserialize)]
 pub struct AddWalletRequest {
-    pub username: String,
-    pub password: String,
     pub keplr_address: String,
     pub pubkey: String,
     pub sign_message: String,
@@ -50,6 +48,8 @@ pub struct AddWalletRequest {
 #[derive(Serialize)]
 pub struct LoginResponse {
     pub token: String,
+    pub user_id: i32,
+    pub groups: Vec<i32>
 }
 
 #[derive(Serialize)]
@@ -67,9 +67,24 @@ pub async fn login(login: Json<LoginRequest>, pool: &State<PgPool>) -> Result<Js
     match user {
         Ok(u) => {
             if u.password.as_ref() == Some(&login.password) {
-                let claim = Claims::from_name(&login.username);
+                let groups: Vec<i32> = sqlx::query_as::<_, (i32,)>("SELECT group_id FROM user_groups WHERE user_id = $1")
+                    .bind(u.id)
+                    .fetch_all(pool.inner())
+                    .await
+                    .map(|result| {
+                        if result.is_empty() {
+                            vec![0]
+                        } else {
+                            result.into_iter().map(|group: (i32,)| group.0).collect()
+                        }
+                    })
+                    .unwrap_or_else(|_| vec![0]);  // Default to vec![0] in case of any error
+
+                let claim = Claims::new(u.id, &u.username, groups.clone());
                 let response = LoginResponse {
                     token: claim.into_token()?,
+                    user_id: u.id,
+                    groups: groups,
                 };
                 Ok(Json(response))
             } else {
@@ -126,29 +141,51 @@ pub async fn keplr_login(keplr_login: Json<KeplrLoginRequest>, pool: &State<PgPo
 
     match user {
         Ok(Some(u)) => {
-            let claim = Claims::from_name(&u.username);
+            let groups: Vec<i32> = sqlx::query_as::<_, (i32,)>("SELECT group_id FROM user_groups WHERE user_id = $1")
+                .bind(u.id)
+                .fetch_all(pool.inner())
+                .await
+                .map(|result| {
+                    if result.is_empty() {
+                        vec![0]
+                    } else {
+                        result.into_iter().map(|group: (i32,)| group.0).collect()
+                    }
+                })
+                .unwrap_or_else(|_| vec![0]);  // Default to vec![0] in case of any error
+
+            let claim = Claims::new(u.id, &u.username, groups.clone());
             let response = LoginResponse {
                 token: claim.into_token()?,
+                user_id: u.id,
+                groups: groups
             };
             Ok(Json(response))
         }
         Ok(None) => {
-            sqlx::query("INSERT INTO users (username, keplr_address) VALUES ($1, $2)")
+            // Insert new user and get the new user ID
+            let row: (i32,) = sqlx::query_as("INSERT INTO users (username, keplr_address) VALUES ($1, $2) RETURNING id")
                 .bind(address)
                 .bind(address)
-                .execute(pool.inner())
+                .fetch_one(pool.inner())
                 .await
                 .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+                
+            let new_user_id = row.0;
 
-            let claim = Claims::from_name(address);
+            let claim = Claims::new(new_user_id, address, vec![0]);
             let response = LoginResponse {
                 token: claim.into_token()?,
+                user_id: new_user_id,
+                groups: vec![0]
             };
             Ok(Json(response))
         }
         Err(e) => Err(Custom(Status::InternalServerError, e.to_string())),
     }
 }
+
+
 
 #[post("/add-wallet", data = "<request>")]
 pub async fn add_wallet(request: Json<AddWalletRequest>,user: Claims, pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
@@ -204,7 +241,7 @@ pub async fn add_wallet(request: Json<AddWalletRequest>,user: Claims, pool: &Sta
 
 
 #[post("/change-credentials", data = "<request>")]
-pub async fn change_credentials(request: Json<ChangeCredentialsRequest>, user: Claims,pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
+pub async fn change_credentials(request: Json<ChangeCredentialsRequest>, claims: Claims,pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
     let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE keplr_address = $1")
         .bind(&request.keplr_address)
         .fetch_optional(pool.inner())
