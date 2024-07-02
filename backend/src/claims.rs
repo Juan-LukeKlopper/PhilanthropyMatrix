@@ -21,7 +21,9 @@ pub enum AuthenticationError {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims {
+    pub id: i32,
     pub name: String,
+    pub group_ids: Vec<i32>,
     exp: usize,
 }
 
@@ -41,9 +43,11 @@ impl<'r> FromRequest<'r> for Claims {
 }
 
 impl Claims {
-    pub fn from_name(name: &str) -> Self {
+    pub fn new(id: i32, name: &str, group_ids: Vec<i32>) -> Self {
         Self {
+            id,
             name: name.to_string(),
+            group_ids,
             exp: 0,
         }
     }
@@ -79,10 +83,11 @@ mod tests {
 
     #[test]
     fn to_token_and_back() {
-        let claim = Claims::from_name("test runner");
+        let claim = Claims::new(1, "test runner",vec![1]);
         let token = claim.into_token().unwrap();
         let token = format!("Bearer {}", token);
         let claim = Claims::from_authorization(&token).unwrap();
         assert_eq!(claim.name, "test runner");
+        assert_eq!(claim.group_ids, vec![1]);
     }
 }
