@@ -368,3 +368,108 @@ export async function removeMember(group_id, user_id) {
 
   return response.json();
 }
+
+export async function getDonationsForGroup(groupId) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/list/${groupId}`, {
+      method: 'GET',
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch donations for group');
+  }
+  return response.json();
+}
+
+export async function getDonationProposalsForGroup(groupId) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/${groupId}/list/proposals`, {
+      method: 'GET',
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch donations for group');
+  }
+  return response.json();
+}
+
+export async function getDonationById(id) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/${id}`, {
+      method: 'GET',
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch donation details');
+  }
+  return response.json();
+}
+
+export async function getDonationProposalById(id) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/proposal/${id}`, {
+      method: 'GET',
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch donation details');
+  }
+  return response.json();
+}
+
+export async function proposeDonation(proposal) {
+  const token = localStorage.getItem('token');
+  console.log(proposal)
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/proposal/add`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(proposal)
+  });
+  if (!response.ok) {
+      throw new Error('Failed to propose donation');
+  }
+  return response.json();
+}
+
+export async function approveDonation(id, group_id) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/approve`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ proposal_id: id, group_id: group_id })
+  });
+  if (!response.ok) {
+      throw new Error('Failed to approve donation');
+  }
+  return response.json();
+}
+
+export async function rejectDonation(id, group_id) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/reject`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ proposal_id: id, group_id: group_id })
+  });
+  if (!response.ok) {
+      throw new Error('Failed to approve donation');
+  }
+  return response.json();
+}
+
+export async function removeDonation(id, group_id) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/remove`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ proposal_id: id, group_id: group_id })
+  });
+  if (!response.ok) {
+      throw new Error('Failed to approve donation');
+  }
+  return response.json();
+}
