@@ -16,7 +16,7 @@
         goto('/login');
         return;
       }
-      profile = await getProfile(token);
+      profile = await getProfile();
     } catch (err) {
       console.error('Failed to load profile:', err);
       error = 'Failed to load profile';
@@ -26,7 +26,7 @@
   async function handleChangeCredentials() {
     try {
       await changeCredentials(profile.keplr_address, username, password);
-      profile = await getProfile(localStorage.getItem('token')); // Reload profile to get updated data
+      profile = await getProfile(); // Reload profile to get updated data
       success = 'Credentials updated successfully';
       error = '';
     } catch (err) {
@@ -39,7 +39,7 @@
   async function handleAddWallet() {
     try {
       await addWallet(); // Ensure password is sent
-      profile = await getProfile(localStorage.getItem('token')); // Reload profile to get updated data
+      profile = await getProfile(); // Reload profile to get updated data
       success = 'Wallet address added successfully';
       error = '';
     } catch (err) {
