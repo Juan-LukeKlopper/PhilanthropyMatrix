@@ -37,7 +37,32 @@ CREATE TABLE IF NOT EXISTS user_groups (
     PRIMARY KEY (user_id, group_id)
 );
 
--- Insert default admin user
+CREATE TABLE IF NOT EXISTS donation_proposals (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    cost INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS donations (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    cost INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS group_donations (
+    group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+    donation_id INTEGER REFERENCES donations(id) ON DELETE CASCADE,
+    PRIMARY KEY (group_id, donation_id)
+);
+
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin') THEN
@@ -45,7 +70,6 @@ BEGIN
     END IF;
 END $$;
 
--- Insert default admin group
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM groups WHERE name = 'admin group') THEN
@@ -53,7 +77,6 @@ BEGIN
     END IF;
 END $$;
 
--- Associate admin user with admin group and set as admin
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM user_groups WHERE user_id = (SELECT id FROM users WHERE username = 'admin') AND group_id = (SELECT id FROM groups WHERE name = 'admin group')) THEN
