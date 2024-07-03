@@ -241,7 +241,7 @@ pub async fn add_wallet(request: Json<AddWalletRequest>,user: Claims, pool: &Sta
 
 
 #[post("/change-credentials", data = "<request>")]
-pub async fn change_credentials(request: Json<ChangeCredentialsRequest>, claims: Claims,pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
+pub async fn change_credentials(request: Json<ChangeCredentialsRequest>, __claims: Claims,pool: &State<PgPool>) -> Result<Json<PublicResponse>, Custom<String>> {
     let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE keplr_address = $1")
         .bind(&request.keplr_address)
         .fetch_optional(pool.inner())
