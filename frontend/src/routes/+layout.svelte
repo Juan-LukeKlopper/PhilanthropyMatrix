@@ -20,6 +20,7 @@
   {#if isLoggedIn}
     <a href="/profile">Profile</a>
     <a href="/groups">Groups</a>
+    <a href="/donations">Donations</a>
     <button on:click={logout}>Logout</button>
   {:else}
     <a href="/login">Login</a>
