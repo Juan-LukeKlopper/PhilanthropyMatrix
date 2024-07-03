@@ -9,7 +9,7 @@ mod claims;
 mod models;
 mod routes;
 
-use routes::{auth, group_members, groups, profile};
+use routes::{auth, donations, group_members, groups, profile};
 
 pub struct MyState {
     pool: PgPool,
@@ -48,7 +48,15 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::
             groups::get_group,
             group_members::add_member,
             group_members::list_group_members,
-            group_members::remove_member
+            group_members::remove_member,
+            donations::add_donation_proposal,
+            donations::approve_donation,
+            donations::list_donations_for_group,
+            donations::get_donation,
+            donations::reject_donation_proposal,
+            donations::remove_donation,
+            donations::list_donation_proposals_for_group,
+            donations::get_donation_proposal
         ])
         .manage(pool)
         .attach(cors);
