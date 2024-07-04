@@ -56,7 +56,9 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_rocket::
             donations::reject_donation_proposal,
             donations::remove_donation,
             donations::list_donation_proposals_for_group,
-            donations::get_donation_proposal
+            donations::get_donation_proposal,
+            donations::link_secret_network_address,
+            donations::get_active_donation
         ])
         .manage(pool)
         .attach(cors);
