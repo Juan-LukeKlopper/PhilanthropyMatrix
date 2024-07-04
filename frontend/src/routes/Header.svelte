@@ -25,7 +25,7 @@
 	<a href="/">Home</a>
 	{#if isLoggedIn}
 	  <a href="/profile">Profile</a>
-	  <button on:click={logout}>Logout</button>
+	  <button class="button-50"  on:click={logout}>Logout</button>
 	{:else}
 	  <a href="/login">Login</a>
 	  <a href="/register">Register</a>

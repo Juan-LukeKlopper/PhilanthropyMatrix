@@ -40,8 +40,8 @@
     <label for="password">Password:</label>
     <input type="password" id="password" bind:value={password} required />
   </div>
-  <button type="submit">Register</button>
-  <button type="button" on:click={handleKeplrRegister}>Register with Keplr</button>
+  <button class="button-50"  type="submit">Register</button>
+  <button class="button-50"  type="button" on:click={handleKeplrRegister}>Register with Keplr</button>
   {#if error}
     <p>{error}</p>
   {/if}

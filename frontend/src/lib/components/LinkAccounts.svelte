@@ -33,7 +33,7 @@
       <label for="keplrAddress">Keplr Address:</label>
       <input type="text" id="keplrAddress" bind:value={keplrAddress} required />
     </div>
-    <button type="submit">Link Accounts</button>
+    <button class="button-50"  type="submit">Link Accounts</button>
     {#if error}
       <p>{error}</p>
     {/if}

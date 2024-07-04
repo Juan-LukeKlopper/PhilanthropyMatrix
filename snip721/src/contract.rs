@@ -1,11 +1,10 @@
 /// This contract implements SNIP-721 standard:
 /// https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-721.md
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use base64::{engine::general_purpose, Engine as _};
 use cosmwasm_std::{
-    attr, entry_point, to_binary, Addr, Api, Binary, BlockInfo, CanonicalAddr, CosmosMsg, Deps,
-    DepsMut, Env, MessageInfo, Response, StdError, StdResult, Storage, WasmMsg,
+    attr, entry_point, to_binary, Addr, Api, Binary, BlockInfo, CanonicalAddr, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Storage, Uint128, WasmMsg
 };
 use cosmwasm_storage::{PrefixedStorage, ReadonlyPrefixedStorage};
 use primitive_types::U256;
@@ -139,6 +138,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
     let mut config: Config = load(deps.storage, CONFIG_KEY)?;
 
     let response = match msg {
+        ExecuteMsg::AddMinter { minter, padding } => try_add_minter(deps, env, info, minter,  &config, ContractStatus::StopTransactions.to_u8()),
         ExecuteMsg::MintNft {
             token_id,
             owner,
@@ -463,6 +463,56 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
     };
     pad_handle_result(response, BLOCK_SIZE)
 }
+
+
+
+pub fn try_add_minter(
+    deps: DepsMut,
+    _env: Env,
+    info: MessageInfo,
+    minter: String,
+    config: &Config,
+) -> StdResult<Response> {
+
+
+    let required_funds = Coin {
+        denom: "uscrt".to_string(),
+        amount: Uint128::from_str("1_000_000").unwrap(), // 1 SCRT
+    };
+
+    // Validate the amount of funds sent
+    let mut funds_valid = false;
+    for coin in info.funds.iter() {
+        if coin.denom == required_funds.denom && coin.amount >= required_funds.amount {
+            funds_valid = true;
+            break;
+        }
+    }
+
+    if !funds_valid {
+        return Err(StdError::generic_err("Insufficient funds sent"));
+    }
+    
+    let mut minters: Vec<CanonicalAddr> = may_load(deps.storage, MINTERS_KEY)?.unwrap_or_default();
+    let mut update = false;
+    let minter_raw = deps
+        .api
+        .addr_canonicalize(deps.api.addr_validate(&minter)?.as_str())?;
+
+    if !minters.contains(&minter_raw) {
+        minters.push(minter_raw);
+        update = true;
+    }
+    // only save if the list changed
+    if update {
+        save(deps.storage, MINTERS_KEY, &minters)?;
+    }
+
+    Ok(Response::new()
+        .add_attribute("action", "add_minter")
+        .add_attribute("minter", minter))
+}
+
 
 /// Returns StdResult<Response>
 ///

@@ -29,9 +29,9 @@
 {#if typeof window === 'undefined' || !token}
   <h1>Welcome to the Home Screen</h1>
   <p>Please login or register to continue.</p>
-  <button on:click={navigateToLogin}>Login</button>
-  <button on:click={navigateToRegister}>Register</button>
-  <button on:click={navigateToLink}>Link Accounts</button>
+  <button class="button-50"  on:click={navigateToLogin}>Login</button>
+  <button class="button-50"  on:click={navigateToRegister}>Register</button>
+  <button class="button-50"  on:click={navigateToLink}>Link Accounts</button>
 {:else}
   <h1>Welcome to the Protected Screen</h1>
   <p>This is a protected screen.</p>

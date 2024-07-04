@@ -60,13 +60,13 @@
   <h2>All Groups</h2>
   <ul>
     {#each groups as group (group.id)}
-      <li> <button on:click={() => handleGetGroupById(group.id)}>{group.name}</button></li>
+      <li> <button class="button-50"  on:click={() => handleGetGroupById(group.id)}>{group.name}</button></li>
     {/each}
   </ul>
 </div>
 
 <div>
-  <ul><li><button on:click={() => goto("/proposals")}>Propose a group</button></li></ul>
+  <ul><li><button class="button-50"  on:click={() => goto("/proposals")}>Propose a group</button></li></ul>
 </div>
 
 
@@ -80,7 +80,7 @@
     <p>Primary Color: <br> {group.primary_color}</p>
     <p>Secondary Color: <br> {group.secondary_color}</p>
     <p>About Us: <br> {group.about_us}</p>
-    <button on:click={() => handleRemoveGroupById(group.id)}>Remove</button>
+    <button class="button-50"  on:click={() => handleRemoveGroupById(group.id)}>Remove</button>
 
     <ManageMembers {groupId} />
   </div>

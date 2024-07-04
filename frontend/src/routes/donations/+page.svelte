@@ -185,7 +185,7 @@
             <label for="description">Description:</label>
             <textarea id="description" bind:value={proposal.description} required></textarea>
         </div>
-        <button on:click={handleProposeDonation}>Propose Donation</button>
+        <button class="button-50"  on:click={handleProposeDonation}>Propose Donation</button>
     </div>
 
     <div in:fly={{ y: 200, duration: 1000 }} out:fade>
@@ -193,7 +193,7 @@
         <ul>
             {#each donation_proposals as donation_proposal (donation_proposal.id)}
                 <li>
-                    <button on:click={() => handleDonationProposalClick(donation_proposal.id)}>{donation_proposal.name}</button>
+                    <button class="button-50"  on:click={() => handleDonationProposalClick(donation_proposal.id)}>{donation_proposal.name}</button>
                 </li>
             {/each}
         </ul>
@@ -209,8 +209,8 @@
             {#if selectedDonationProposal.image_url}
                 <p>Image: <img src={selectedDonationProposal.image_url} alt={selectedDonationProposal.name} /></p>
             {/if}
-            <button on:click={() => handleApproveDonationProposal(selectedDonationProposal.id)}>Approve</button>
-            <button on:click={() => handleRejectDonationProposal(selectedDonationProposal.id)}>Reject</button>
+            <button class="button-50"  on:click={() => handleApproveDonationProposal(selectedDonationProposal.id)}>Approve</button>
+            <button class="button-50"  on:click={() => handleRejectDonationProposal(selectedDonationProposal.id)}>Reject</button>
         </div>
     {/if}
 
@@ -219,7 +219,7 @@
         <ul>
             {#each donations as donation (donation.id)}
                 <li>
-                    <button on:click={() => handleDonationClick(donation.id)}>{donation.name}</button>
+                    <button class="button-50"  on:click={() => handleDonationClick(donation.id)}>{donation.name}</button>
                 </li>
             {/each}
         </ul>
@@ -240,7 +240,7 @@
                 <InstantiateContract donation={selectedDonation} />
             {/if}
             <p>Description: {selectedDonation.description}</p>
-            <button on:click={() => handleRemoveDonation(selectedDonation.id)}>Remove</button>
+            <button class="button-50"  on:click={() => handleRemoveDonation(selectedDonation.id)}>Remove</button>
         </div>
     {/if}
 {/if}

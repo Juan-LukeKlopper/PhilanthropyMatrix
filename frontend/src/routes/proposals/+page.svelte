@@ -98,7 +98,7 @@
       <label for="about_us">About Us:</label>
       <textarea id="about_us" bind:value={newGroup.about_us}></textarea>
     </div>
-    <button on:click={handleAddGroup}>Add Proposal</button>
+    <button class="button-50"  on:click={handleAddGroup}>Add Proposal</button>
   </div>
 
   <!-- List all groups_proposals -->
@@ -106,7 +106,7 @@
     <h2>All Proposed Groups</h2>
     <ul>
       {#each group_proposals as group_proposal (group_proposal.id)}
-        <li> <button on:click={() => handleGetProposedGroupById(group_proposal.id)}>{group_proposal.name}</button></li>
+        <li> <button class="button-50"  on:click={() => handleGetProposedGroupById(group_proposal.id)}>{group_proposal.name}</button></li>
       {/each}
     </ul>
   </div>
@@ -122,8 +122,8 @@
       <p>Primary Color: <br> {group_proposal.primary_color}</p>
       <p>Secondary Color: <br> {group_proposal.secondary_color}</p>
       <p>About Us: <br> {group_proposal.about_us}</p>
-      <button on:click={() => approveGroupProposalById(group_proposal.id)}>Approve</button>
-      <button on:click={() => rejectGroupProposalById(group_proposal.id)}>Decline</button>
+      <button class="button-50"  on:click={() => approveGroupProposalById(group_proposal.id)}>Approve</button>
+      <button class="button-50"  on:click={() => rejectGroupProposalById(group_proposal.id)}>Decline</button>
     </div>
   {/if}
 

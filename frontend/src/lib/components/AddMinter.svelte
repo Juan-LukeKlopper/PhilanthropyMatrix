@@ -76,5 +76,5 @@
     <p class="success">{success}</p>
   {/if}
   
-  <button on:click={addMinter}>Add Minter</button>
+  <button class="button-50"  on:click={addMinter}>Add Minter</button>
   

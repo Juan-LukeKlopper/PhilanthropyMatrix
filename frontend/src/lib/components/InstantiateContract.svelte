@@ -72,7 +72,7 @@
           <p>Contract Address: {contractAddress}</p>
           <p>Cost: {donation.cost}</p>
         {:else}
-            <button on:click={handleInstantiateContract}>Instantiate Contract</button>
+            <button class="button-50"  on:click={handleInstantiateContract}>Instantiate Contract</button>
         {/if}
       {:else}
         <p>Loading donation details...</p>

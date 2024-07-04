@@ -84,5 +84,5 @@
     <p class="success">{success}</p>
   {/if}
   
-  <button on:click={() => mintNFT('https://example.com/image.png', 'Example NFT')}>Mint NFT</button>
+  <button class="button-50"  on:click={() => mintNFT('https://example.com/image.png', 'Example NFT')}>Mint NFT</button>
   

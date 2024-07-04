@@ -41,8 +41,8 @@
     <label for="password">Password:</label>
     <input type="password" id="password" bind:value={password} required />
   </div>
-  <button type="submit">Login</button>
-  <button type="button" on:click={handleKeplrLogin}>Login with Keplr</button>
+  <button class="button-50"  type="submit">Login</button>
+  <button class="button-50"  type="button" on:click={handleKeplrLogin}>Login with Keplr</button>
   {#if error}
     <p>{error}</p>
   {/if}

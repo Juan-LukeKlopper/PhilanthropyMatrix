@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import './styles.css';
   let isLoggedIn = false;
 
   onMount(() => {

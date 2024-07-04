@@ -67,7 +67,7 @@
       {#each members as member (member.user_id)}
         <li>
           {member.user_id} - {member.is_admin ? 'Admin' : 'Member'}
-          <button on:click={() => handleRemoveMember(member.user_id)}>Remove</button>
+          <button class="button-50"  on:click={() => handleRemoveMember(member.user_id)}>Remove</button>
         </li>
       {/each}
     </ul>
@@ -81,6 +81,6 @@
       <label for="is_admin">Is Admin:</label>
       <input type="checkbox" id="is_admin" bind:checked={newMember.is_admin} />
     </div>
-    <button on:click={handleAddMember}>Add Member</button>
+    <button class="button-50"  on:click={handleAddMember}>Add Member</button>
   </div>
   

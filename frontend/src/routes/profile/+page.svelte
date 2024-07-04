@@ -59,7 +59,7 @@
   <p>Keplr Address: {profile.keplr_address}</p>
   {#if !profile.keplr_address}
     <!-- Show the form to add wallet address -->
-    <button on:click={handleAddWallet}>Link Keplr Wallet</button>
+    <button class="button-50"  on:click={handleAddWallet}>Link Keplr Wallet</button>
   {:else if profile.username === profile.keplr_address}
     <!-- Show the form to change username and password -->
     <div>
@@ -72,7 +72,7 @@
         <label for="password">Password:</label>
         <input type="password" id="password" bind:value={password} required />
       </div>
-      <button on:click={handleChangeCredentials}>Set Web2 Credentials</button>
+      <button class="button-50"  on:click={handleChangeCredentials}>Set Web2 Credentials</button>
     </div>
   {/if}
   {#if success}
