@@ -26,7 +26,7 @@ pub struct Donation {
     name: String,
     symbol: String,
     cost: i32,
-    contract_address: String,
+    contract_address: Option<String>,
     description: String,
     image_url: Option<String>,
 }
@@ -128,6 +128,7 @@ pub async fn approve_donation(
     state: &State<MyState>,
     claims: Claims,
 ) -> Result<Json<Donation>, Custom<String>> {
+    
     let proposal = sqlx::query_as::<_, DonationProposal>("SELECT * FROM donation_proposals WHERE id = $1")
         .bind(approve_request.proposal_id)
         .fetch_one(&state.pool)
@@ -153,7 +154,7 @@ pub async fn approve_donation(
     let donation = sqlx::query_as::<_, Donation>(
         "INSERT INTO donations (group_id, name, symbol, cost, description, image_url) 
         VALUES ($1, $2, $3, $4, $5, $6) 
-        RETURNING id, group_id, name, symbol, cost, description, image_url"
+        RETURNING id, group_id, name, symbol, cost, contract_address, description, image_url"
     )
     .bind(proposal.group_id)
     .bind(&proposal.name)
@@ -195,8 +196,8 @@ pub async fn list_donations_for_group(group_id: i32, state: &State<MyState>) -> 
 }
 
 #[get("/donations/<group_id>/list/proposals")]
-pub async fn list_donation_proposals_for_group(group_id: i32, state: &State<MyState>) -> Result<Json<Vec<Donation>>, Custom<String>> {
-    let donations = sqlx::query_as::<_, Donation>("SELECT * FROM donation_proposals WHERE group_id = $1")
+pub async fn list_donation_proposals_for_group(group_id: i32, state: &State<MyState>) -> Result<Json<Vec<DonationProposal>>, Custom<String>> {
+    let donations = sqlx::query_as::<_, DonationProposal>("SELECT * FROM donation_proposals WHERE group_id = $1")
         .bind(group_id)
         .fetch_all(&state.pool)
         .await
@@ -206,14 +207,14 @@ pub async fn list_donation_proposals_for_group(group_id: i32, state: &State<MySt
 }
 
 #[get("/donations/proposal/<id>")]
-pub async fn get_donation_proposal(id: i32, state: &State<MyState>) -> Result<Json<Donation>, Custom<String>> {
-    let donation = sqlx::query_as::<_, Donation>("SELECT * FROM donation_proposals WHERE id = $1")
+pub async fn get_donation_proposal(id: i32, state: &State<MyState>) -> Result<Json<DonationProposal>, Custom<String>> {
+    let donation_proposal = sqlx::query_as::<_, DonationProposal>("SELECT * FROM donation_proposals WHERE id = $1")
         .bind(id)
         .fetch_one(&state.pool)
         .await
         .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
-    Ok(Json(donation))
+    Ok(Json(donation_proposal))
 }
 
 
@@ -231,7 +232,7 @@ pub async fn get_donation(id: i32, state: &State<MyState>) -> Result<Json<Donati
 
 #[get("/donations/active")]
 pub async fn get_active_donation(state: &State<MyState>) -> Result<Json<Vec<Donation>>, Custom<String>> {
-    let donations = sqlx::query_as::<_, Donation>("SELECT * FROM donations WHERE contract_address IS NOT NULL)")
+    let donations = sqlx::query_as::<_, Donation>("SELECT * FROM donations WHERE contract_address IS NOT NULL")
         .fetch_all(&state.pool)
         .await
         .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
