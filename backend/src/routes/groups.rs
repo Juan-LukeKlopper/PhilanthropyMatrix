@@ -66,7 +66,7 @@ pub async fn add_proposed_group(
     let new_group = sqlx::query_as::<_, ProposedGroup>(
         "INSERT INTO group_proposals (name, user_id, image_url, cashout_wallet_address, primary_color, secondary_color, about_us) 
         VALUES ($1, $2, $3, $4, $5, $6, $7) 
-        RETURNING id, name, image_url, cashout_wallet_address, primary_color, secondary_color, about_us"
+        RETURNING id, name, user_id, image_url, cashout_wallet_address, primary_color, secondary_color, about_us"
     )
     .bind(&group.name)
     .bind(user_id)
@@ -113,7 +113,7 @@ pub async fn approve_group(
     claims: Claims,
 ) -> Result<Json<Group>, Custom<String>> {
 
-    if claims.group_ids.contains(&1) {
+    if !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not a system admin!".to_string()));
     }
 
@@ -174,7 +174,7 @@ pub async fn reject_group(
 
     let group_ids = claims.group_ids;
 
-    if group_ids.contains(&1) {
+    if !group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not a system admin!".to_string()));
 
     }
@@ -196,7 +196,7 @@ pub async fn remove_group(
 ) -> Result<Json<Group>, Custom<String>> {
     let group_ids = claims.group_ids;
 
-    if group_ids.contains(&1) {
+    if !group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not a system admin!".to_string()));
 
     }
