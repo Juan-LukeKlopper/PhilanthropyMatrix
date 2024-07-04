@@ -473,3 +473,22 @@ export async function removeDonation(id, group_id) {
   }
   return response.json();
 }
+
+export async function linkDonationContract(groupId, donationId, contractAddress) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/link_address`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ group_id: groupId, donation_id: donationId, contract_address: contractAddress })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to link donation contract');
+  }
+
+  return response.json();
+}
