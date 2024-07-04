@@ -3,7 +3,9 @@
 
   
     export let donation;
-    const contractCodeHash = "f52c670d1cf2f64b93197b5c6c8e61af1d228e92b7d133fd02c097f34b37b3bb";
+    const contractCodeHash = import.meta.env.VITE_SNIP721_CODE_HASH;
+    const chainId = import.meta.env.VITE_CHAIN_ID;
+    const API_URL = import.meta.env.VITE_CHAIN_URL;
     let error = '';
     let success = '';
   
@@ -13,13 +15,13 @@
         throw new Error('Please install Keplr extension');
       }
   
-      await window.keplr.enable('pulsar-3');
-      const keplrOfflineSigner = window.getOfflineSigner('pulsar-3');
+      await window.keplr.enable(chainId);
+      const keplrOfflineSigner = window.getOfflineSigner(chainId);
       const [{ address }] = await keplrOfflineSigner.getAccounts();
   
       const secretjs = new SecretNetworkClient({
-        chainId: 'pulsar-3',
-        url: 'https://api.pulsar.scrttestnet.com',
+        chainId: chainId,
+        url: API_URL,
         wallet: keplrOfflineSigner,
         walletAddress: address,
       });

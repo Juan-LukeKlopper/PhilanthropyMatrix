@@ -6,18 +6,20 @@
   
     let contractAddress = '';
     let error = '';
-    // Constant snip721 contract info
-    const codeId = "9104";
-    const contractCodeHash = "f52c670d1cf2f64b93197b5c6c8e61af1d228e92b7d133fd02c097f34b37b3bb";
+    // Constant snip721 contract info MOOSE
+    const codeId = import.meta.env.VITE_SNIP721_CODE_ID;
+    const contractCodeHash = import.meta.env.VITE_SNIP721_CODE_HASH;
+    const chainId = import.meta.env.VITE_CHAIN_ID;
+    const API_URL = import.meta.env.VITE_CHAIN_URL;
   
     async function instantiateContract() {
       try {
-        const wallet = window.keplr.getOfflineSignerOnlyAmino('pulsar-3');
+        const wallet = window.keplr.getOfflineSignerOnlyAmino(chainId);
         const [{ address }] = await wallet.getAccounts();
 
         const secretjs = new SecretNetworkClient({
-          chainId: 'pulsar-3',
-          url: 'https://api.pulsar.scrttestnet.com',
+          chainId: chainId,
+          url: API_URL,
           wallet: wallet,
           walletAddress: address,
         });

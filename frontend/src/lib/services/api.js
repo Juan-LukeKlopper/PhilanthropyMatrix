@@ -1,17 +1,19 @@
 import { SecretNetworkClient } from 'secretjs';
+const chainId = import.meta.env.VITE_CHAIN_ID;
+const API_URL = import.meta.env.VITE_CHAIN_URL;
 
 export async function loginWithKeplr() {
   if (!window.keplr) {
     throw new Error("Please install Keplr extension");
   }
 
-  await window.keplr.enable("pulsar-3");
-  const keplrOfflineSigner = window.getOfflineSigner("pulsar-3");
+  await window.keplr.enable(chainId);
+  const keplrOfflineSigner = window.getOfflineSigner(chainId);
   const [{ address }] = await keplrOfflineSigner.getAccounts();
 
   const signMessage = "Login request to my application";
   const signed = await window.keplr.signArbitrary(
-    "pulsar-3",
+    chainId,
     address,
     signMessage
   );
@@ -37,13 +39,13 @@ export async function loginWithKeplr() {
 }
 
 export async function createSecretNetworkClient() {
-  await window.keplr.enable("pulsar-3");
-  const keplrOfflineSigner = window.getOfflineSigner("pulsar-3");
+  await window.keplr.enable(chainId);
+  const keplrOfflineSigner = window.getOfflineSigner(chainId);
   const [{ address }] = await keplrOfflineSigner.getAccounts();
 
   const secretjs = new SecretNetworkClient({
-    url: "https://api.pulsar.scrttestnet.com",
-    chainId: "pulsar-3",
+    url: API_URL,
+    chainId: chainId,
     wallet: keplrOfflineSigner,
     walletAddress: address,
   });
@@ -76,13 +78,13 @@ export async function addWallet() {
     throw new Error("Please install Keplr extension");
   }
 
-  await window.keplr.enable("pulsar-3");
-  const keplrOfflineSigner = window.getOfflineSigner("pulsar-3");
+  await window.keplr.enable(chainId);
+  const keplrOfflineSigner = window.getOfflineSigner(chainId);
   const [{ address }] = await keplrOfflineSigner.getAccounts();
 
   const signMessage = "Login request to my application";
   const signed = await window.keplr.signArbitrary(
-    "pulsar-3",
+    chainId,
     address,
     signMessage
   );
