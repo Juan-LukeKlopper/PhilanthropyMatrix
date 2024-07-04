@@ -10,8 +10,10 @@
         getDonationProposalsForGroup,
         getDonationProposalById,
         rejectDonation,
-        removeDonation
+        removeDonation,
     } from '$lib/services/api';
+    import InstantiateContract from '$lib/components/InstantiateContract.svelte';
+
 
     let groups = [];
     let selectedGroup = null;
@@ -26,6 +28,7 @@
     let proposal = {
         group_id: '',
         name: '',
+        symbol: '',
         cost: '',
         description: '',
         image_url: ''
@@ -88,7 +91,8 @@
             await proposeDonation(proposal);
             success = 'Donation proposal submitted successfully';
             error = '';
-            proposal = { group_id: '', name: '', cost: '', description: '', image_url: '' };
+            proposal = { group_id: '', name: '', symbol: '', cost: '', description: '', image_url: '' };
+            donation_proposals = await getDonationProposalsForGroup(selectedGroup);
         } catch (err) {
             console.error('Failed to propose donation:', err);
             error = 'Failed to propose donation';
@@ -159,28 +163,32 @@
 </div>
 
 {#if selectedGroup}
-    <div in:fly={{ y: 200, duration: 2000 }} out:fade>
+    <div in:fly={{ y: 200, duration: 500 }} out:fade>
         <h2>Propose Donation</h2>
         <div>
             <label for="name">Name:</label>
             <input type="text" id="name" bind:value={proposal.name} required />
         </div>
         <div>
-            <label for="cost">Cost:</label>
-            <input type="number" id="cost" bind:value={proposal.cost} required />
+            <label for="name">Symbol:</label>
+            <input type="text" id="symbol" bind:value={proposal.symbol} required />
         </div>
         <div>
-            <label for="description">Description:</label>
-            <textarea id="description" bind:value={proposal.description} required></textarea>
+            <label for="cost">Cost:</label>
+            <input type="number" id="cost" bind:value={proposal.cost} required />
         </div>
         <div>
             <label for="image_url">Image URL:</label>
             <input type="url" id="image_url" bind:value={proposal.image_url} />
         </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" bind:value={proposal.description} required></textarea>
+        </div>
         <button on:click={handleProposeDonation}>Propose Donation</button>
     </div>
 
-    <div in:fly={{ y: 200, duration: 2000 }} out:fade>
+    <div in:fly={{ y: 200, duration: 1000 }} out:fade>
         <h2>Donation proposals for Group</h2>
         <ul>
             {#each donation_proposals as donation_proposal (donation_proposal.id)}
@@ -192,9 +200,10 @@
     </div>
 
     {#if selectedDonationProposal}
-        <div>
+        <div in:fade out:fade>
             <h2 transition:fade >Donation Proposal Details</h2>
             <p>Name: {selectedDonationProposal.name}</p>
+            <p>Symbol: {selectedDonationProposal.symbol}</p>
             <p>Cost: {selectedDonationProposal.cost}</p>
             <p>Description: {selectedDonationProposal.description}</p>
             {#if selectedDonationProposal.image_url}
@@ -205,7 +214,7 @@
         </div>
     {/if}
 
-    <div in:fly={{ y: 200, duration: 2000 }} out:fade>
+    <div in:fly={{ y: 200, duration: 1500 }} out:fade>
         <h2>Donations for Group</h2>
         <ul>
             {#each donations as donation (donation.id)}
@@ -217,14 +226,20 @@
     </div>
 
     {#if selectedDonation}
-        <div>
-            <h2 transition:fade >Donation Details</h2>
-            <p>Name: {selectedDonation.name}</p>
-            <p>Cost: {selectedDonation.cost}</p>
-            <p>Description: {selectedDonation.description}</p>
+        <div in:fade out:fade>
+            <h2>Donation Details</h2>
             {#if selectedDonation.image_url}
                 <p>Image: <img src={selectedDonation.image_url} alt={selectedDonation.name} /></p>
             {/if}
+            <p>Name: {selectedDonation.name}</p>
+            <p>Symbol: {selectedDonation.symbol}</p>
+            {#if selectedDonation.contract_address}
+                <p>Cost: {selectedDonation.cost}</p>
+                <p>Address: {selectedDonation.contract_address}</p>
+            {:else}
+                <InstantiateContract donation={selectedDonation} />
+            {/if}
+            <p>Description: {selectedDonation.description}</p>
             <button on:click={() => handleRemoveDonation(selectedDonation.id)}>Remove</button>
         </div>
     {/if}
