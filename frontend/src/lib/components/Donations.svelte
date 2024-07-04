@@ -1,9 +1,7 @@
 <script>
+    import MintNFT from '$lib/components/MintNFT.svelte';
+    import AddMinter from '$lib/components/AddMinter.svelte';
     export let donations = [];
-    
-    function handleMint(donation) {
-        console.log("hello")
-    }
   </script>
   
   <style>
@@ -47,12 +45,8 @@
         <p><strong>Cost:</strong> {donation.cost}</p>
         <p><strong>Description:</strong> {donation.description}</p>
         <p><strong>Image URL:</strong> {donation.image_url}</p>
-        <button 
-          class="mint-button" 
-          on:click={() => handleMint(donation)} 
-          disabled={!donation.contract_address}>
-          Mint Donation
-        </button>
+        <MintNFT donation={donation} />
+        <AddMinter donation={donation} />
       </div>
     {/each}
   </div>
