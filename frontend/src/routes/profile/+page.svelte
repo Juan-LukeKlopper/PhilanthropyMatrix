@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { getProfile, changeCredentials, addWallet, loginWithKeplr } from '$lib/services/api';
   import { goto } from '$app/navigation';
+  import Minidenticon from '$lib/components/Minidenticons.svelte';
   
   let profile = {};
   let error = '';
@@ -53,6 +54,7 @@
 {#if error}
   <p>{error}</p>
 {:else if profile.username}
+  <Minidenticon username={profile.username} />
   <h1>Welcome, {profile.username}</h1>
   <p>Keplr Address: {profile.keplr_address}</p>
   {#if !profile.keplr_address}
