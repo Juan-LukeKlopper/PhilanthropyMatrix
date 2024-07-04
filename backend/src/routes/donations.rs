@@ -13,6 +13,7 @@ pub struct DonationProposal {
     id: i32,
     group_id: i32,
     name: String,
+    symbol: String,
     cost: i32,
     description: String,
     image_url: Option<String>,
@@ -23,7 +24,9 @@ pub struct Donation {
     id: i32,
     group_id: i32,
     name: String,
+    symbol: String,
     cost: i32,
+    contract_address: String,
     description: String,
     image_url: Option<String>,
 }
@@ -32,6 +35,7 @@ pub struct Donation {
 pub struct CreateDonationProposalRequest {
     group_id: i32,
     name: String,
+    symbol: String,
     cost: i32,
     description: String,
     image_url: Option<String>,
@@ -42,6 +46,44 @@ pub struct ApproveDonationRequest {
     proposal_id: i32,
     group_id: i32,
 }
+
+#[derive(Deserialize)]
+pub struct LinkSecretAddressRequest {
+    donation_id: i32,
+    group_id: i32,
+    contract_address: String,
+}
+
+#[post("/donations/link_address", data = "<request>")]
+pub async fn link_secret_network_address(
+    request: Json<LinkSecretAddressRequest>,
+    state: &State<MyState>,
+    claims: Claims,
+) -> Result<Custom<String>, Custom<String>> {
+    let is_admin: bool = sqlx::query_scalar("SELECT is_admin FROM user_groups WHERE user_id = $1 AND group_id = $2")
+        .bind(claims.id)
+        .bind(request.group_id)
+        .fetch_one(&state.pool)
+        .await
+        .unwrap_or(Some(false))
+        .unwrap_or(false); 
+
+    if !is_admin || !claims.group_ids.contains(&1) {
+        return Err(Custom(Status::Unauthorized, "You are not an admin of this group or system".to_string()));
+    }
+
+    sqlx::query(
+        "UPDATE donations SET contract_address = $1 WHERE id = $2"
+    )
+    .bind(&request.contract_address)
+    .bind(request.donation_id)
+    .execute(&state.pool)
+    .await
+    .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+
+    Ok(Custom(Status::Ok, "Secret Network address linked to donation".to_string()))
+}
+
 
 #[post("/donations/proposal/add", data = "<proposal>")]
 pub async fn add_donation_proposal(
@@ -63,12 +105,13 @@ pub async fn add_donation_proposal(
     }
 
     let new_proposal = sqlx::query_as::<_, DonationProposal>(
-        "INSERT INTO donation_proposals (group_id, name, cost, description, image_url) 
-        VALUES ($1, $2, $3, $4, $5) 
-        RETURNING id, group_id, name, cost, description, image_url"
+        "INSERT INTO donation_proposals (group_id, name, symbol, cost, description, image_url) 
+        VALUES ($1, $2, $3, $4, $5, $6) 
+        RETURNING id, group_id, name, symbol, cost, description, image_url"
     )
     .bind(proposal.group_id)
     .bind(&proposal.name)
+    .bind(&proposal.symbol)
     .bind(proposal.cost)
     .bind(&proposal.description)
     .bind(&proposal.image_url)
@@ -108,12 +151,13 @@ pub async fn approve_donation(
     let mut tx = state.pool.begin().await.map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
     let donation = sqlx::query_as::<_, Donation>(
-        "INSERT INTO donations (group_id, name, cost, description, image_url) 
-        VALUES ($1, $2, $3, $4, $5) 
-        RETURNING id, group_id, name, cost, description, image_url"
+        "INSERT INTO donations (group_id, name, symbol, cost, description, image_url) 
+        VALUES ($1, $2, $3, $4, $5, $6) 
+        RETURNING id, group_id, name, symbol, cost, description, image_url"
     )
     .bind(proposal.group_id)
     .bind(&proposal.name)
+    .bind(&proposal.symbol)
     .bind(proposal.cost)
     .bind(&proposal.description)
     .bind(&proposal.image_url)
@@ -182,6 +226,17 @@ pub async fn get_donation(id: i32, state: &State<MyState>) -> Result<Json<Donati
         .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
     Ok(Json(donation))
+}
+
+
+#[get("/donations/active")]
+pub async fn get_active_donation(state: &State<MyState>) -> Result<Json<Vec<Donation>>, Custom<String>> {
+    let donations = sqlx::query_as::<_, Donation>("SELECT * FROM donations WHERE contract_address IS NOT NULL)")
+        .fetch_all(&state.pool)
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+
+    Ok(Json(donations))
 }
 
 
