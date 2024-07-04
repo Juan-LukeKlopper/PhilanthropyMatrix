@@ -30,3 +30,5 @@
 {/if}
 
 <Donations {donations} />
+
+<p>Please refresh to see new nav links!</p>
