@@ -1,32 +1,115 @@
 # PhilanthropyMatrix
 
-PhilanthropyMatrix is a blockchain-based project that harnesses the power of the Secret Network to create tokenized charity Non-Fungible Tokens (NFTs). Our aim is to bring transparency, security, and trust to the charitable giving space through the innovative use of blockchain technology.
+PhilanthropyMatrix is a decentralized application (dApp) designed to facilitate secure and transparent charity donations using NFTs on the Secret Network. Users can propose and manage donations, mint NFTs, and securely transfer funds, ensuring privacy and security throughout the process. The system is versatile and can be adapted to other industries, providing a robust platform for internal approvals, rejections, and administrative management.
 
-## Problem Statement
+## Key Features
 
-The current charitable giving landscape often lacks transparency, making it difficult for donors to track how their contributions are utilized. This lack of visibility can lead to decreased trust and engagement in charitable activities.
+- **Propose Donations**: Users can submit donation proposals, approved by group admins.
+- **Mint NFTs**: Approved donations can be turned into NFTs, representing the charitable contribution.
+- **Secure Transactions**: Transactions are executed on the Secret Network, ensuring privacy and security.
+- **User Management**: Admins can manage group memberships and approve donation proposals.
+- **Versatility**: The system can be customized to accommodate other industries, providing internal approval and administrative control for various cases.
 
-## Objectives
+## Usage
 
-PhilanthropyMatrix aims to address these issues by:
+1. *Propose a Charity*: Create a charity with all the required fields supplied and wait for approval.
+2. *Upon approval*: Once the charity has been approved by a superuser, the admin (the person who proposed the charity group) can add other members.
+3. *Propose a Donation*: Users can submit donation proposals, including details like name, cost, description, and image URL.
+4. *Approve Donations*: Admins can approve or reject donation proposals.
+5. *Mint NFTs*: Once approved, donations can be minted into NFTs.
+6. *Secure Transactions*: Use the Keplr wallet to interact with the dApp and execute secure transactions.
 
-1. Tokenizing charitable donations as NFTs, providing a clear and immutable record of each contribution.
-2. Leveraging the privacy-preserving features of the Secret Network to ensure confidentiality where needed.
-3. Building a user-friendly interface using the Svelte framework to make the process of giving intuitive and accessible.
+## Development Deep Dive
 
-## Project Overview
+### Architecture Overview
 
-### Sub-divisions
+The platform uses PostgreSQL for data storage and management. It consists of:
 
-1. **Contract**: This folder contains the Secret Network-specific CosmWasm smart contract written in Rust.
-2. **Frontend**: This folder contains the user interface built using the Svelte framework.
+- **Frontend**: Built with SvelteKit, providing an intuitive and responsive user interface ensuring a seamless user experience.
+- **Backend**: Developed in Rust, handling API requests and interacting with the PostgreSQL database for its safety and concurrency features, ensuring robust and reliable performance.
+- **Smart Contracts**: Deployed on the Secret Network to manage NFTs and secure transactions. The system is designed to be adaptable, supporting both web3 and web2 users.
 
-## Important Project Details
+### Setup Instructions
 
-- **Code Hash**: **TODO**
-- **Contract Address**: **TODO**
-- **URL**: **TODO**
+1. **Clone the Repository**:
 
-## PhilanthropyMatrix for Hackathon
+    ```bash
+    git clone https://github.com/yourusername/PhilanthropyMatrix.git
+    cd PhilanthropyMatrix
+    ```
 
-This project is a submission to the Secret III Hackathon. I believe that PhilanthropyMatrix demonstrates the potential of blockchain technology in enhancing transparency and trust in the charitable giving sector.
+2. **Install Dependencies**:
+
+    - Frontend:
+
+        ```bash
+        cd frontend
+        npm install
+        ```
+
+    - Backend:
+
+        if you are using Linux/MacOS
+        ```bash
+        curl -sSfL https://www.shuttle.rs/install | bash
+        ```
+
+        on windows run
+        ```bash
+        iwr https://www.shuttle.rs/install-win | iex
+        ```
+
+        Alternatively install it using cargo
+        ```bash
+        cargo install cargo-shuttle
+        ```
+
+        After installing, log in with
+        ```bash
+        cargo shuttle login
+        ```
+
+3. **Set up the .env files**:
+
+    - Update the `frontend/.env` file with the url for your shuttle project, They provision the database alongside the backend so no need to worry about this. If you have made changes to the smart contract please update the code_id and code_hash also located in this `.env`
+
+4. **Run the Application**:
+
+    - Frontend:
+
+        ```bash
+        npm run dev
+        ```
+
+    - Backend:
+
+        ```bash
+        cd backend
+        cargo shuttle project start
+        cargo shuttle deploy --allow-dirty
+        ```
+
+## Future Work
+
+- **Enhanced User Profiles**: Improve user profile management and customization.
+- **Donation Tracking**: Implement detailed tracking of donation usage and impact.
+- **Expanded NFT Functionality**: Explore additional use cases for NFTs in charitable activities.
+- **Cross-Industry Application**: Further develop the platform to support a variety of industries requiring internal approval and administrative management.
+
+## Investor Pitch
+
+### Problem Statement
+
+Charity organizations and donors often face challenges related to transparency, security, and privacy in the donation process. Additionally, many web2 platforms lack robust mechanisms for internal approval and administrative management.
+
+### Solution
+
+PhilanthropyMatrix leverages blockchain technology to provide a secure, transparent, and privacy-focused platform for charity donations. Using NFTs on the Secret Network, the platform ensures that donations are securely managed and tracked, enhancing trust and accountability. The system is designed to be versatile, allowing for customization to suit various industries, enabling robust internal management and approval processes.
+
+### Market Fit
+
+The target audience includes charity organizations, donors, and blockchain enthusiasts who value transparency, security, and privacy in their transactions. The platform also caters to industries requiring internal approval mechanisms, broadening its market appeal. By supporting both web3 and web2 users, PhilanthropyMatrix provides a comprehensive solution for a wide range of applications.
+
+### Potential Impact
+
+PhilanthropyMatrix aims to revolutionize the charity donation process by providing a secure and transparent platform. This can attract more donors, increase trust in charitable organizations, and ensure that funds are used effectively for their intended purposes. The system's versatility allows it to be applied to other industries, enhancing internal management and administrative capabilities across various sectors.
