@@ -1,19 +1,32 @@
 <script>
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import Donations from '$lib/components/Donations.svelte';
+  import { getDonations } from '$lib/services/api';
 
+
+  let donations = [];
+  let error = '';
   let token;
+  let logged_in = false;
 
-  onMount(() => {
-    if (typeof window !== 'undefined') {
-      token = localStorage.getItem('token');
-      if (!token) {
-        goto('/');
+  onMount(async () => {
+    try {
+      if (typeof window !== 'undefined') {
+        token = localStorage.getItem('token');
+        if (token) {
+          logged_in = true
+        } 
       }
+      donations = await getDonations();
+    } catch (err) {
+      console.error('Failed to load donations:', err);
+      error = 'Failed to load donations';
     }
   });
 </script>
 
-<h1>Welcome to the Protected Screen</h1>
-<p>This is a protected screen.</p>
+{#if error}
+  <p>{error}</p>
+{/if}
 
+<Donations {donations} />
