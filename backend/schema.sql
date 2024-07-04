@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE,
     password TEXT,
     keplr_address TEXT,
-    pfp_url TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -41,9 +40,10 @@ CREATE TABLE IF NOT EXISTS donation_proposals (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
     cost INTEGER NOT NULL,
     description TEXT NOT NULL,
-    image_url TEXT,
+    image_url TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -51,9 +51,11 @@ CREATE TABLE IF NOT EXISTS donations (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
     cost INTEGER NOT NULL,
     description TEXT NOT NULL,
     image_url TEXT,
+    contract_address TEXT UNIQUE,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -73,7 +75,7 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM groups WHERE name = 'admin group') THEN
-        INSERT INTO groups (name, cashout_wallet_address, created_at) VALUES ('admin group', 'default_wallet_address', NOW());
+        INSERT INTO groups (name, cashout_wallet_address, created_at) VALUES ('admin group', 'secret1c7t2rygcxmjlj47c4sj3q6x2sxjsu6z8cue2tf', NOW());
     END IF;
 END $$;
 
