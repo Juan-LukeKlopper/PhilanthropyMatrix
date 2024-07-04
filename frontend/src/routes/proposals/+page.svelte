@@ -17,7 +17,6 @@
       about_us: ''
     };
   
-    // Load all group related info on mount
     onMount(async () => {
       try {
         group_proposals = await getAllGroupProposals();
@@ -27,6 +26,10 @@
       }
     });
   
+    async function getGroupProposals() {
+      group_proposals = await getAllGroupProposals();
+    }
+
     async function handleAddGroup() {
       try {
         const addedGroup = await addGroup(newGroup);
@@ -34,6 +37,7 @@
         success = 'Group added successfully';
         error = '';
         newGroup = { name: '', image_url: '', cashout_wallet_address: '', primary_color: '', secondary_color: '', about_us: '' }; // Reset form
+        group_proposals = await getAllGroupProposals();
       } catch (err) {
         console.error('Error adding group:', err);
         error = 'Error adding group';
@@ -122,8 +126,8 @@
       <p>Primary Color: <br> {group_proposal.primary_color}</p>
       <p>Secondary Color: <br> {group_proposal.secondary_color}</p>
       <p>About Us: <br> {group_proposal.about_us}</p>
-      <button class="button-50"  on:click={() => approveGroupProposalById(group_proposal.id)}>Approve</button>
-      <button class="button-50"  on:click={() => rejectGroupProposalById(group_proposal.id)}>Decline</button>
+      <button class="button-50"  on:click={() => {approveGroupProposalById(group_proposal.id), getGroupProposals()}}>Approve</button>
+      <button class="button-50"  on:click={() => {rejectGroupProposalById(group_proposal.id), getGroupProposals()}}>Decline</button>
     </div>
   {/if}
 
