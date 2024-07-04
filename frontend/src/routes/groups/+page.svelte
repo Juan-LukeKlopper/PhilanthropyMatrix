@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { getAllGroups, getGroupById, removeGroupById } from '$lib/services/api';
   import ManageMembers from '$lib/components/ManageMembers.svelte';
+    import { goto } from '$app/navigation';
 
   let groups = [];
   let groupId = '';
@@ -54,7 +55,7 @@
   <p>{success}</p>
 {/if}
 
-<!-- List all groups -->
+
 <div>
   <h2>All Groups</h2>
   <ul>
@@ -64,7 +65,11 @@
   </ul>
 </div>
 
-<!-- Display group details -->
+<div>
+  <ul><li><button on:click={() => goto("/proposals")}>Propose a group</button></li></ul>
+</div>
+
+
 {#if group.id}
   {groupId = group.id}
   <div>
@@ -77,7 +82,6 @@
     <p>About Us: <br> {group.about_us}</p>
     <button on:click={() => handleRemoveGroupById(group.id)}>Remove</button>
 
-    <!-- Use the ManageMembers component -->
     <ManageMembers {groupId} />
   </div>
 {/if}
