@@ -384,7 +384,7 @@ export async function getDonationProposalsForGroup(groupId) {
       method: 'GET',
   });
   if (!response.ok) {
-      throw new Error('Failed to fetch donations for group');
+      throw new Error('Failed to fetch donation proposals for group');
   }
   return response.json();
 }
@@ -490,5 +490,15 @@ export async function linkDonationContract(groupId, donationId, contractAddress)
     throw new Error('Failed to link donation contract');
   }
 
+  return response.json();
+}
+
+export async function getDonations() {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/donations/active`, {
+      method: 'GET',
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch donations for group');
+  }
   return response.json();
 }
