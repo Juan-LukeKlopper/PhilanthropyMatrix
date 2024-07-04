@@ -7,8 +7,8 @@
     let contractAddress = '';
     let error = '';
     // Constant snip721 contract info
-    const codeId = "9070";
-    const contractCodeHash = "773c39a4b75d87c4d04b6cfe16d32cd5136271447e231b342f7467177c363ca8";
+    const codeId = "9104";
+    const contractCodeHash = "f52c670d1cf2f64b93197b5c6c8e61af1d228e92b7d133fd02c097f34b37b3bb";
   
     async function instantiateContract() {
       try {
@@ -26,6 +26,10 @@
           name: donation.name,
           symbol: donation.symbol,
           entropy: 'qwertyuioplkjhgfdsa',
+          config: { 
+            public_token_supply: true, 
+            minter_may_update_metadata: false,
+          },
         };
 
         const tx = await secretjs.tx.compute.instantiateContract(
