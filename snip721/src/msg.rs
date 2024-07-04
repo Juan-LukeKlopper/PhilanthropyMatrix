@@ -102,6 +102,12 @@ pub struct PostInstantiateCallback {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
+    AddMinter {
+        /// address that can now mint
+        minter: String,
+        /// optional message length padding
+        padding: Option<String>,
+    },
     /// mint new token
     MintNft {
         /// optional token id. if omitted, use current token index
