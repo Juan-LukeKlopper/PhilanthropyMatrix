@@ -71,7 +71,24 @@ The platform uses PostgreSQL for data storage and management. It consists of:
 
 3. **Set up the .env files**:
 
-    - Update the `frontend/.env` file with the url for your shuttle project, They provision the database alongside the backend so no need to worry about this. If you have made changes to the smart contract please update the code_id and code_hash also located in this `.env`
+    Copy the example .env into the right location 
+    ```bash
+    cp frontend/.env-example frontend/.env
+    ```
+
+    This is what the .env contains
+
+    ```.env
+    VITE_BACKEND_URL=...
+    VITE_SNIP721_CODE_ID=...
+    VITE_SNIP721_CODE_HASH=...
+    VITE_CHAIN_ID=...
+    VITE_CHAIN_URL=...
+    ```
+
+    To connect you own instance of the backend and database you can update the `frontend/.env` file with the url for your shuttle project, They provision the database alongside the backend. if left unaltered you will connect to my backend instance and DB.
+
+
 
 4. **Run the Application**:
 
@@ -86,7 +103,7 @@ The platform uses PostgreSQL for data storage and management. It consists of:
         ```bash
         cd backend
         cargo shuttle project start
-        cargo shuttle deploy --allow-dirty
+        cargo shuttle deploy
         ```
 
 ## Future Work
@@ -113,3 +130,7 @@ The target audience includes charity organizations, donors, and blockchain enthu
 ### Potential Impact
 
 PhilanthropyMatrix aims to revolutionize the charity donation process by providing a secure and transparent platform. This can attract more donors, increase trust in charitable organizations, and ensure that funds are used effectively for their intended purposes. The system's versatility allows it to be applied to other industries, enhancing internal management and administrative capabilities across various sectors.
+
+### Additional Information
+
+For HackSecret 3 Judges only, please review the `frontend/.env-example` file to find users created to give you access to some more functionality on the system.
