@@ -42,7 +42,7 @@ pub async fn add_member(
         .unwrap_or(Some(false))
         .unwrap_or(false); 
 
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group".to_string()));
     }
 
@@ -73,7 +73,7 @@ pub async fn list_group_members(
         .unwrap_or(false); 
 
         
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group or system".to_string()));
     }
 
@@ -102,7 +102,7 @@ pub async fn remove_member(
     .unwrap_or(Some(false))  // Return Some(false) in case of an error or if no value is found
     .unwrap_or(false);  // Unwrap the Option to get a bool
         
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group".to_string()));
     }
 

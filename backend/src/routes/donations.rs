@@ -68,7 +68,7 @@ pub async fn link_secret_network_address(
         .unwrap_or(Some(false))
         .unwrap_or(false); 
 
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group or system".to_string()));
     }
 
@@ -256,7 +256,7 @@ pub async fn reject_donation_proposal(
         .unwrap_or(Some(false))
         .unwrap_or(false); 
 
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group or system".to_string()));
     }
 
@@ -284,7 +284,7 @@ pub async fn remove_donation(
         .unwrap_or(Some(false))
         .unwrap_or(false); 
 
-    if !is_admin || !claims.group_ids.contains(&1) {
+    if !is_admin && !claims.group_ids.contains(&1) {
         return Err(Custom(Status::Unauthorized, "You are not an admin of this group or system".to_string()));
     }
 

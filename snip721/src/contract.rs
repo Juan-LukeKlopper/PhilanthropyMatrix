@@ -138,7 +138,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
     let mut config: Config = load(deps.storage, CONFIG_KEY)?;
 
     let response = match msg {
-        ExecuteMsg::AddMinter { minter, padding } => try_add_minter(deps, env, info, minter,  &config, ContractStatus::StopTransactions.to_u8()),
+        ExecuteMsg::AddMinter { minter, padding } => try_add_minter(deps, env, info, minter,  &config),
         ExecuteMsg::MintNft {
             token_id,
             owner,
@@ -473,25 +473,6 @@ pub fn try_add_minter(
     minter: String,
     config: &Config,
 ) -> StdResult<Response> {
-
-
-    let required_funds = Coin {
-        denom: "uscrt".to_string(),
-        amount: Uint128::from_str("1_000_000").unwrap(), // 1 SCRT
-    };
-
-    // Validate the amount of funds sent
-    let mut funds_valid = false;
-    for coin in info.funds.iter() {
-        if coin.denom == required_funds.denom && coin.amount >= required_funds.amount {
-            funds_valid = true;
-            break;
-        }
-    }
-
-    if !funds_valid {
-        return Err(StdError::generic_err("Insufficient funds sent"));
-    }
     
     let mut minters: Vec<CanonicalAddr> = may_load(deps.storage, MINTERS_KEY)?.unwrap_or_default();
     let mut update = false;
